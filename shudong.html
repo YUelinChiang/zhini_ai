@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>知你AI - 树洞倾诉</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: linear-gradient(to bottom, #fce4ec, #f3e5f5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      padding-top: 60px;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #ec407a;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 80%;
+      height: 100px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: none;
+    }
+
+    .submit-btn {
+      margin-top: 15px;
+      background-color: #ab47bc;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .messages {
+      width: 80%;
+      margin-top: 30px;
+      max-height: 40vh;
+      overflow-y: auto;
+    }
+
+    .message {
+      background-color: #fff3e0;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .reply {
+      background-color: #e1bee7;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #4a148c;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='first.html'">← 返回首页</button>
+  <h1>树洞倾诉</h1>
+
+  <textarea id="userInput" placeholder="写下你想倾诉的话..."></textarea>
+  <button class="submit-btn" onclick="postMessage()">发布</button>
+
+  <div class="messages" id="messagesContainer"></div>
+
+  <script>
+    function postMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (text === '') {
+        alert('请输入内容再发布哦~');
+        return;
+      }
+
+      const container = document.getElementById('messagesContainer');
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message';
+      msgDiv.innerText = '你说：' + text;
+
+      // 自动回复
+      const replyDiv = document.createElement('div');
+      replyDiv.className = 'reply';
+      replyDiv.innerText = getReply(text);
+
+      msgDiv.appendChild(replyDiv);
+      container.prepend(msgDiv);
+
+      input.value = ''; // 清空输入框
+    }
+
+    function getReply(text) {
+      const keywords = [
+        { word: ['难过', '伤心', '抑郁'], reply: '抱抱你，情绪来了就让它停一停，慢慢会好起来的。' },
+        { word: ['开心', '高兴'], reply: '听到你开心我也好开心！记得多享受这样的时刻～' },
+        { word: ['孤独', '一个人', '没人'], reply: '你不是一个人，我在听你说哦。' },
+        { word: ['压力', '焦虑'], reply: '深呼吸一下，事情会一点一点好起来的。' },
+        { word: ['生气', '烦'], reply: '别憋在心里，有时候说出来就会好很多。' },
+      ];
+
+      for (let item of keywords) {
+        for (let key of item.word) {
+          if (text.includes(key)) {
+            return item.reply;
+          }
+        }
+      }
+      return '谢谢你的分享，愿你越来越好～';
+    }
+  </script>
+</body>
+</html>

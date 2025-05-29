@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>知你AI - AI对话 多轮演示</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #b2ebf2);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 10px 20px;
+    }
+
+    .back-btn {
+      align-self: flex-start;
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #004d40;
+      margin-bottom: 10px;
+    }
+
+    .chat-container {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      font-size: 15px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: #4fc3f7;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background-color: #e0f2f1;
+      color: #004d40;
+      border-bottom-left-radius: 4px;
+    }
+
+    .input-area {
+      display: flex;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus {
+      border-color: #0288d1;
+    }
+
+    button.send-btn {
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    button.send-btn:hover {
+      background-color: #015f8b;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-btn" onclick="window.location.href='first.html'">← 返回首页</button>
+  <h1>AI对话</h1>
+
+  <div class="chat-container" id="chatContainer">
+    <!-- 聊天消息将动态添加 -->
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="请输入你的消息..." autocomplete="off" />
+    <button class="send-btn" onclick="sendMessage()">发送</button>
+  </div>
+
+  <!-- 水滴点击音效 -->
+  <audio id="clickSound" src="https://actions.google.com/sounds/v1/water/drip.ogg" preload="auto"></audio>
+
+  <script>
+    const chatContainer = document.getElementById('chatContainer');
+    const clickSound = document.getElementById('clickSound');
+    const inputField = document.getElementById('userInput');
+
+    // 对话状态变量，模拟多轮对话
+    let conversationState = 'idle'; // idle, waiting_emotion_response, waiting_advice_response 等
+    let lastTopic = null; // 记忆用户上次主题关键词
+
+    function sendMessage() {
+      let text = inputField.value.trim();
+      if (text === '') {
+        alert('请输入消息再发送哦~');
+        return;
+      }
+
+      // 播放点击音效
+      clickSound.currentTime = 0;
+      clickSound.play();
+
+      addMessage(text, 'user');
+
+      setTimeout(() => {
+        const reply = getAIReply(text);
+        addMessage(reply, 'ai');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 600);
+
+      inputField.value = '';
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
+      msgDiv.textContent = text;
+      chatContainer.appendChild(msgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 简单关键词匹配函数
+    function containsKeyword(text, keywords) {
+      const lower = text.toLowerCase();
+      return keywords.some(k => lower.includes(k));
+    }
+
+    function getAIReply(userText) {
+      const lowerText = userText.toLowerCase();
+
+      // 多轮对话状态机处理
+      switch(conversationState) {
+        case 'idle':
+          if (containsKeyword(lowerText, ['难过', '伤心', '失落', '抑郁'])) {
+            conversationState = 'waiting_emotion_response';
+            lastTopic = 'emotion';
+            return '抱抱你，愿意跟我多说说吗？发生了什么事？';
+          } else if (containsKeyword(lowerText, ['开心', '高兴', '快乐', '幸福'])) {
+            conversationState = 'waiting_emotion_response';
+            lastTopic = 'happy';
+            return '听到你开心我也很高兴！想分享是什么让你开心吗？';
+          } else if (containsKeyword(lowerText, ['孤独', '寂寞', '没人'])) {
+            conversationState = 'waiting_emotion_response';
+            lastTopic = 'lonely';
+            return '你不是一个人，我在这里听你诉说。想聊聊你的感受吗？';
+          } else if (containsKeyword(lowerText, ['压力', '焦虑', '紧张'])) {
+            conversationState = 'waiting_emotion_response';
+            lastTopic = 'stress';
+            return '感觉压力好大吗？愿意告诉我具体是什么让你焦虑吗？';
+          } else if (containsKeyword(lowerText, ['生气', '烦', '愤怒'])) {
+            conversationState = 'waiting_emotion_response';
+            lastTopic = 'angry';
+            return '生气的时候真的不容易呢，想说说发生了什么吗？';
+          } else if (containsKeyword(lowerText, ['累', '疲惫', '倦'])) {
+            conversationState = 'waiting_emotion_response';
+            lastTopic = 'tired';
+            return '感觉很累了吧，记得好好照顾自己哦。想跟我聊聊吗？';
+          } else if (containsKeyword(lowerText, ['谢谢', '感谢'])) {
+            return '不客气，我一直都在。有什么想聊的随时告诉我。';
+          } else {
+            return '谢谢你的分享，我会一直陪着你。如果想聊聊心情，可以告诉我你的感受。';
+          }
+
+        case 'waiting_emotion_response':
+          // 根据上次话题，给安慰或建议，并询问下一步
+          if (lastTopic === 'emotion') {
+            conversationState = 'waiting_advice_response';
+            return '我理解你的难过。试试深呼吸，或者做些喜欢的事情放松自己吧。需要我给你一些小建议吗？（回复“是”或“否”）';
+          } else if (lastTopic === 'happy') {
+            conversationState = 'idle';
+            return '开心真的很重要，保持好心情，分享快乐也能传染给别人哦！';
+          } else if (lastTopic === 'lonely') {
+            conversationState = 'idle';
+            return '记得，虽然你觉得孤独，但你并不孤单，我一直陪着你。';
+          } else if (lastTopic === 'stress') {
+            conversationState = 'waiting_advice_response';
+            return '压力很难受，我可以帮你做些放松练习。需要我帮忙吗？（回复“是”或“否”）';
+          } else if (lastTopic === 'angry') {
+            conversationState = 'idle';
+            return '生气时试试深呼吸或找个安全的地方发泄一下情绪，保持冷静很重要。';
+          } else if (lastTopic === 'tired') {
+            conversationState = 'idle';
+            return '累了就休息，照顾好自己，身体和心情都需要放松。';
+          } else {
+            conversationState = 'idle';
+            return '谢谢你告诉我这些，我一直都在。';
+          }
+
+        case 'waiting_advice_response':
+          // 用户回复是否需要建议
+          if (containsKeyword(lowerText, ['是', '要', '好'])) {
+            conversationState = 'idle';
+            if (lastTopic === 'emotion') {
+              return '可以试试写日记，或者听喜欢的音乐，运动也能缓解情绪。你愿意试试吗？';
+            } else if (lastTopic === 'stress') {
+              return '深呼吸、冥想或短暂散步都很有效。你想让我帮你做个简单指导吗？';
+            } else {
+              return '我这里有一些建议可以帮你调整心情，你想听吗？';
+            }
+          } else if (containsKeyword(lowerText, ['否', '不要', '不了'])) {
+            conversationState = 'idle';
+            return '好的，如果需要随时告诉我，我会陪伴你的。';
+          } else {
+            return '请回复“是”或“否”，让我更好帮助你。';
+          }
+
+        default:
+          conversationState = 'idle';
+          return '谢谢你的分享，我一直都在。';
+      }
+    }
+
+    // 支持回车发送消息
+    inputField.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+        e.preventDefault();
+      }
+    });
+
+  </script>
+</body>
+</html>

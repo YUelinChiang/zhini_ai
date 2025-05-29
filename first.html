@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>知你AI - 首页</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: linear-gradient(to right, #f6fafe, #e0f7fa);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      font-size: 36px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .btn {
+      background-color: #4fc3f7;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 240px;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #0288d1;
+    }
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>欢迎来到知你AI</h1>
+  <p>在这里，释放情绪，找到温暖的陪伴</p>
+
+  <div class="btn-container">
+    <button class="btn" onclick="location.href='shudong.html'">🌱 树洞倾诉</button>
+    <button class="btn" onclick="location.href='chat.html'">🤖 AI对话</button>
+    <button class="btn" onclick="location.href='pet.html'">🐾 我的宠物</button>
+  </div>
+
+  <div class="footer">© 2025 知你AI · 校园心理互助计划</div>
+</body>
+</html>

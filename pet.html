@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>宠物互动</title>
+<style>
+  body {
+    background: #fff9f9;
+    font-family: "Helvetica Neue", sans-serif;
+    padding: 20px;
+    text-align: center;
+    margin: 0;
+  }
+
+  /* 返回主页按钮 */
+  #backHome {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    padding: 8px 15px;
+    background: #4fc3f7;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+    z-index: 1000;
+  }
+  #backHome:hover {
+    background: #0288d1;
+  }
+
+  h2 {
+    margin-top: 60px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  #petSelector {
+    margin-bottom: 20px;
+    font-size: 16px;
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+
+  #petContainer {
+    position: relative;
+    display: inline-block;
+    box-shadow: 0 8px 16px rgba(255,100,100,0.3);
+    border-radius: 20px;
+  }
+  #petPhoto {
+    width: 280px;
+    border-radius: 20px;
+    display: block;
+  }
+
+  #interactionOptions {
+    margin-top: 25px;
+  }
+  #interactionOptions button {
+    margin: 0 8px 12px 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    border: none;
+    background: #ff6f91;
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  #interactionOptions button:hover {
+    background: #ff3b68;
+  }
+
+  #message {
+    margin-top: 25px;
+    font-size: 18px;
+    color: #ff4081;
+    min-height: 36px;
+    min-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 宠物心情条 */
+  #moodBarContainer {
+    margin: 20px auto 0;
+    width: 280px;
+    background: #eee;
+    border-radius: 20px;
+    height: 18px;
+    overflow: hidden;
+    box-shadow: inset 0 0 5px #ccc;
+  }
+  #moodBar {
+    height: 100%;
+    width: 50%; /* 初始50% */
+    background: linear-gradient(90deg, #ff6f91, #ff4081);
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
+
+  /* 爱心动画 */
+  .heart {
+    position: absolute;
+    color: #ff4081;
+    font-size: 24px;
+    animation: floatUp 1.5s ease forwards;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-120px) scale(1.5);
+    }
+  }
+
+  /* 星星动画 */
+  .star {
+    position: absolute;
+    color: #ffd700;
+    font-size: 22px;
+    animation: starTwinkle 2s infinite;
+    user-select: none;
+    pointer-events: none;
+  }
+  @keyframes starTwinkle {
+    0%, 100% {opacity: 1;}
+    50% {opacity: 0.3;}
+  }
+
+  /* 气泡动画 */
+  .bubble {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: rgba(135,206,250,0.7);
+    border-radius: 50%;
+    animation: bubbleUp 1.8s ease forwards;
+    user-select: none;
+    pointer-events: none;
+  }
+  @keyframes bubbleUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-140px) scale(0.5);
+    }
+  }
+</style>
+</head>
+<body>
+
+<button id="backHome" onclick="location.href='first.html'">← 返回首页</button>
+
+<h2>选择你的宠物</h2>
+<select id="petSelector" onchange="changePet()">
+  <option value="cat">🐱 小猫</option>
+  <option value="dog">🐶 小狗</option>
+  <option value="bunny">🐹 仓鼠</option>
+</select>
+
+<div id="petContainer">
+  <img src="images/cat.jpg" alt="宠物图片" id="petPhoto" />
+</div>
+
+<div id="interactionOptions">
+  <button onclick="interact('feed')">喂食</button>
+  <button onclick="interact('play')">玩耍</button>
+  <button onclick="interact('pet')">抚摸</button>
+  <button onclick="interact('sing')">唱歌</button>
+  <button onclick="interact('dance')">跳舞</button>
+  <button onclick="interact('sleep')">睡觉</button>
+</div>
+
+<div id="moodBarContainer">
+  <div id="moodBar"></div>
+</div>
+
+<div id="message"></div>
+
+<script>
+  // 宠物数据，包含图片路径和初始心情值
+  const pets = {
+    cat: {
+      img: '.jpg',
+      mood: 60
+    },
+    dog: {
+      img: 'liuliu.jpg',
+      mood: 70
+    },
+    bunny: {
+      img: 'haha.jpg',
+      mood: 50
+    }
+  };
+
+  let currentPet = 'cat';
+  let currentMood = pets[currentPet].mood;
+
+  const petPhoto = document.getElementById('petPhoto');
+  const petSelector = document.getElementById('petSelector');
+  const moodBar = document.getElementById('moodBar');
+  const petContainer = document.getElementById('petContainer');
+  const messageDiv = document.getElementById('message');
+
+  // 切换宠物
+  function changePet() {
+    currentPet = petSelector.value;
+    petPhoto.src = pets[currentPet].img;
+    currentMood = pets[currentPet].mood;
+    updateMoodBar();
+    messageDiv.textContent = '';
+  }
+
+  // 更新心情条显示
+  function updateMoodBar() {
+    let widthPercent = Math.min(Math.max(currentMood, 0), 100);
+    moodBar.style.width = widthPercent + '%';
+    if(widthPercent > 70){
+      moodBar.style.background = 'linear-gradient(90deg, #66bb6a, #43a047)'; // 绿色
+    } else if(widthPercent > 40){
+      moodBar.style.background = 'linear-gradient(90deg, #ffb74d, #f57c00)'; // 橙色
+    } else {
+      moodBar.style.background = 'linear-gradient(90deg, #e57373, #d32f2f)'; // 红色
+    }
+  }
+
+  // 宠物互动
+  function interact(action) {
+    let reply = '';
+    let moodChange = 0;
+    let animType = 'heart'; // 默认动画类型
+
+    switch(action) {
+      case 'feed':
+        reply = '宠物吃得很开心，摇尾巴了！';
+        moodChange = 10;
+        animType = 'heart';
+        break;
+      case 'play':
+        reply = '宠物兴奋地跳跃，和你玩得很开心！';
+        moodChange = 15;
+        animType = 'star';
+        break;
+      case 'pet':
+        reply = '宠物舒服地眯起了眼睛，享受你的抚摸。';
+        moodChange = 8;
+        animType = 'heart';
+        break;
+      case 'sing':
+        reply = '宠物听着你的歌声，眼睛闪闪发光！';
+        moodChange = 12;
+        animType = 'bubble';
+        break;
+      case 'dance':
+        reply = '宠物跟着节奏跳起舞来，好有活力！';
+        moodChange = 14;
+        animType = 'star';
+        break;
+      case 'sleep':
+        reply = '宠物打了个哈欠，进入了甜美的梦乡。';
+        moodChange = 5;
+        animType = 'bubble';
+        break;
+      default:
+        reply = '宠物看着你，很期待！';
+        moodChange = 0;
+    }
+
+    currentMood = Math.min(100, Math.max(0, currentMood + moodChange));
+    updateMoodBar();
+    messageDiv.textContent = reply;
+
+    createAnimation(animType);
+  }
+
+  // 动画生成器
+  function createAnimation(type) {
+    const animElem = document.createElement('div');
+    animElem.classList.add(type);
+
+    // 动画起始位置靠近宠物图片右上角
+    animElem.style.left = (petPhoto.offsetWidth - 40) + 'px';
+    animElem.style.top = '20px';
+
+    petContainer.appendChild(animElem);
+
+    // 动画结束后移除元素
+    animElem.addEventListener('animationend', () => {
+      animElem.remove();
+    });
+  }
+
+  // 初始化页面
+  updateMoodBar();
+
+</script>
+
+</body>
+</html>

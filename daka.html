@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>知你AI - 情绪打卡</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: linear-gradient(to bottom, #fffde7, #fff8e1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      padding-top: 60px;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #ef6c00;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .mood-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .mood {
+      font-size: 24px;
+      padding: 12px 20px;
+      background-color: #ffd54f;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .mood:hover {
+      background-color: #ffca28;
+    }
+
+    .mood.selected {
+      border-color: #ef6c00;
+      background-color: #ffe082;
+    }
+
+    .submit-btn {
+      background-color: #81c784;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+      background-color: #66bb6a;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #388e3c;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='first.html'">← 返回首页</button>
+  <h1>今日心情打卡</h1>
+
+  <div class="mood-options">
+    <div class="mood" onclick="selectMood(this)">😊 开心</div>
+    <div class="mood" onclick="selectMood(this)">😐 一般</div>
+    <div class="mood" onclick="selectMood(this)">😢 伤心</div>
+    <div class="mood" onclick="selectMood(this)">😠 生气</div>
+    <div class="mood" onclick="selectMood(this)">😴 累了</div>
+    <div class="mood" onclick="selectMood(this)">🤩 激动</div>
+  </div>
+
+  <button class="submit-btn" onclick="submitMood()">提交打卡</button>
+
+  <div class="message" id="message">✅ 今日已记录，继续加油！</div>
+
+  <script>
+    let selectedMood = null;
+
+    function selectMood(element) {
+      const moods = document.querySelectorAll('.mood');
+      moods.forEach(m => m.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedMood = element.textContent;
+    }
+
+    function submitMood() {
+      if (selectedMood) {
+        document.getElementById('message').style.display = 'block';
+      } else {
+        alert('请选择一个心情再提交哦~');
+      }
+    }
+  </script>
+</body>
+</html>
